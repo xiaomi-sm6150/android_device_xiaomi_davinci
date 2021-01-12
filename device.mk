@@ -35,7 +35,8 @@ TARGET_SCREEN_WIDTH := 1080
 
 # Camera motor
 PRODUCT_PACKAGES += \
-    vendor.xiaomi.hardware.motor@1.0.vendor
+    vendor.xiaomi.hardware.motor@1.0.vendor \
+    XiaomiPopupCamera
 
 # Fingerprint
 PRODUCT_PACKAGES += \
