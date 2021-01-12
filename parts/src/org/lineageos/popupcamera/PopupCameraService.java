@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The LineageOS Project
+ * Copyright (C) 2020-2021 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.lineageos.settings.popupcamera;
+package org.lineageos.popupcamera;
 
 import android.annotation.NonNull;
 import android.app.AlertDialog;
@@ -38,8 +38,8 @@ import android.os.UserHandle;
 import android.util.Log;
 import android.view.WindowManager;
 
-import org.lineageos.settings.R;
-import org.lineageos.settings.utils.FileUtils;
+import org.lineageos.popupcamera.R;
+import org.lineageos.popupcamera.utils.FileUtils;
 
 import vendor.xiaomi.hardware.motor.V1_0.IMotor;
 import vendor.xiaomi.hardware.motor.V1_0.IMotorCallback;
