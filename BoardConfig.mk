@@ -9,6 +9,9 @@ include device/xiaomi/sm6150-common/BoardConfigCommon.mk
 
 DEVICE_PATH := device/xiaomi/davinci
 
+# ANXCamera
+include vendor/aeonax/ANXCamera/BoardConfigAnx.mk
+
 # Audio
 AUDIO_FEATURE_ENABLED_EXT_AMPLIFIER := true
 AUDIO_FEATURE_ENABLED_GEF_SUPPORT := true
