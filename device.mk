@@ -49,6 +49,10 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/rootdir/etc/init.davinci.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/init.davinci.rc
 
+# KeyHandler
+PRODUCT_PACKAGES += \
+    KeyHandler
+
 # NFC
 PRODUCT_PACKAGES += \
     com.android.nfc_extras \
