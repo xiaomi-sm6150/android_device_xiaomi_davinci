@@ -77,33 +77,23 @@ void vendor_load_properties() {
 
     std::string model;
     std::string device;
-    std::string fingerprint;
-    std::string description;
     std::string mod_device;
 
     if (region == "GLOBAL") {
         model = "Mi 9T";
         device = "davinci";
-        fingerprint = "Xiaomi/davinci/davinci:11/RKQ1.200826.002/V12.1.2.0.RFJMIXM:user/release-keys";
-        description = "davinci-user 11 RKQ1.200826.002 V12.1.2.0.RFJMIXM release-keys";
         mod_device = "davinci_global";
     } else if (region == "CN") {
         model = "Redmi K20";
         device = "davinci";
-        fingerprint = "Xiaomi/davinci/davinci:11/RKQ1.200826.002/V12.1.1.0.RFJCNXM:user/release-keys";
-        description = "davinci-user 11 RKQ1.200826.002 V12.1.1.0.RFJCNXM release-keys";
     } else if (region == "INDIA") {
         model = "Redmi K20";
         device = "davinciin";
-        fingerprint = "Xiaomi/davinciin/davinciin:11/RKQ1.200826.002/V12.1.2.0.RFJINXM:user/release-keys";
-        description = "davinciin-user 11 RKQ1.200826.002 V12.1.2.0.RFJINXM release-keys";
         mod_device = "davinciin_in_global";
     }
 
-    set_ro_build_prop("fingerprint", fingerprint);
     set_ro_product_prop("device", device);
     set_ro_product_prop("model", model);
-    property_override("ro.build.description", description.c_str());
     if (mod_device != "") {
         property_override("ro.product.mod_device", mod_device.c_str());
     }
