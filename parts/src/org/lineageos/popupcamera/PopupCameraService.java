@@ -66,7 +66,7 @@ public class PopupCameraService extends Service implements Handler.Callback {
     private SoundPool mSoundPool;
 
     private boolean mLedBusy = false;
-    private String mLedBreathing = "0";
+    private boolean mLedBreathing = false;
     private String mLedBrightness = "0";
 
     private CameraManager.AvailabilityCallback availabilityCallback =
@@ -289,7 +289,7 @@ public class PopupCameraService extends Service implements Handler.Callback {
         if (mPopupCameraPreferences.isLedAllowed()) {
             // Save the active LED effects if it's not our effect and mark the LED as busy
             if (!mLedBusy) {
-                mLedBreathing = FileUtils.readOneLine(Constants.LEFT_LED_BREATH_PATH);
+                mLedBreathing = FileUtils.readOneLine(Constants.LEFT_LED_BREATH_PATH).equals("1");
                 mLedBrightness = FileUtils.readOneLine(Constants.LEFT_LED_BRIGHTNESS_PATH);
             }
             mLedBusy = true;
@@ -317,8 +317,8 @@ public class PopupCameraService extends Service implements Handler.Callback {
                 setLed("step_ms", "70");
 
                 // Restore the previous LED effects
-                if (mLedBreathing.equals("1")) {
-                    FileUtils.writeLine(Constants.LEFT_LED_BREATH_PATH, mLedBreathing);
+                if (mLedBreathing) {
+                    FileUtils.writeLine(Constants.LEFT_LED_BREATH_PATH, "1");
                 } else {
                     FileUtils.writeLine(Constants.LEFT_LED_BRIGHTNESS_PATH, mLedBrightness);
                 }
