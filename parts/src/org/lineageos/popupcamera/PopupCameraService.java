@@ -308,7 +308,7 @@ public class PopupCameraService extends Service implements Handler.Callback {
             setLed("breath", "1");
 
             mHandler.postDelayed(() -> {
-                // Disable the breth effect
+                // Disable the breath effect
                 setLed("brightness", "0");
 
                 // Restore default breath parameters
