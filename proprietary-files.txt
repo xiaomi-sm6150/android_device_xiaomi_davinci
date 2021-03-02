@@ -185,7 +185,7 @@ vendor/lib64/libFaceGrade.so
 vendor/lib64/libft2vendor.so
 vendor/lib64/libmialgo_sd.so
 vendor/lib64/libmibokeh_712.so
-vendor/lib64/libSNPE.so
+#vendor/lib64/libSNPE.so
 vendor/lib64/libXMFD_AgeGender.so
 
 # Camera motor
