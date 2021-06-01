@@ -59,7 +59,7 @@ int tfa98xx_feedback(void* adev, uint32_t snd_device, bool enable) {
     tfa_dev->adev = (struct audio_device*)adev;
     int pcm_dev_tx_id = 0, rc = 0;
 
-    if (!tfa_dev) {
+    if (!tfa_dev->adev) {
         ALOGE("%d: Invalid params", __LINE__);
         return -EINVAL;
     }
