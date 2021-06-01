@@ -106,6 +106,9 @@ int tfa98xx_feedback(void* adev, uint32_t snd_device, bool enable) {
         rc = -EINVAL;
         goto disable;
     }
+
+    ALOGD("%s: Started tfa98xx feedback successfully", __func__);
+
     return 0;
 
 disable:
@@ -116,6 +119,7 @@ disable:
     }
     tfa_dev->usecase_tx = get_usecase_from_list(tfa_dev->adev, tfa_dev->usecase_tx->id);
     if (tfa_dev->usecase_tx) {
+        ALOGD("%s: Disabling tfa98xx feedback", __func__);
         list_remove(&tfa_dev->usecase_tx->list);
         disable_snd_device(tfa_dev->adev, tfa_dev->usecase_tx->in_snd_device);
         disable_audio_route(tfa_dev->adev, tfa_dev->usecase_tx);
