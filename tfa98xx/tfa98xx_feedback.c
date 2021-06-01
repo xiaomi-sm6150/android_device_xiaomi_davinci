@@ -64,9 +64,11 @@ int tfa98xx_feedback(void* adev, uint32_t snd_device, bool enable) {
         return -EINVAL;
     }
 
-    if (tfa_dev->tfa98xx_out || !is_spkr_out_snd_dev(snd_device)) return 0;
+    if (!is_spkr_out_snd_dev(snd_device)) return 0;
 
     if (!enable) goto disable;
+
+    if (tfa_dev->tfa98xx_out) return 0;
 
     tfa_dev->usecase_tx = (struct audio_usecase*)calloc(1, sizeof(struct audio_usecase));
     if (!tfa_dev->usecase_tx) {
