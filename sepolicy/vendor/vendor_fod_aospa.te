@@ -1,7 +1,10 @@
 type sysfs_fod, sysfs_type, fs_type;
+type touchfeature_device, dev_type;
 
 allow vendor_fod sysfs_fod:file rw_file_perms;
 allow vendor_fod vendor_sysfs_graphics:file rw_file_perms;
+
+allow vendor_fod touchfeature_device:chr_file rw_file_perms;
 
 allow vendor_fod hal_fingerprint_hwservice_xiaomi:hwservice_manager find;
 

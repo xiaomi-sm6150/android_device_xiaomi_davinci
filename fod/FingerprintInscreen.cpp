@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The LineageOS Project
+ * Copyright (C) 2019-2021 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,15 +25,18 @@
 
 #include <fcntl.h>
 #include <poll.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 
 #define COMMAND_NIT 10
 #define PARAM_NIT_FOD 1
 #define PARAM_NIT_NONE 0
 
-#define FOD_STATUS_PATH "/sys/devices/virtual/touch/tp_dev/fod_status"
-#define FOD_STATUS_ON 1
-#define FOD_STATUS_OFF 0
+#define TOUCH_DEV_PATH "/dev/xiaomi-touch"
+
+#define TOUCH_MAGIC 0x5400
+#define TOUCH_IOC_SETMODE TOUCH_MAGIC + 0
+#define TOUCH_IOC_RESETMODE TOUCH_MAGIC + 6
 
 #define FOD_UI_PATH "/sys/devices/platform/soc/soc:qcom,dsi-display/fod_ui"
 
@@ -42,12 +45,6 @@
 #define FOD_SENSOR_SIZE 190
 
 namespace {
-
-template <typename T>
-static void set(const std::string& path, const T& value) {
-    std::ofstream file(path);
-    file << value;
-}
 
 static bool readBool(int fd) {
     char c;
@@ -80,6 +77,7 @@ namespace implementation {
 
 FingerprintInscreen::FingerprintInscreen() {
     xiaomiFingerprintService = IXiaomiFingerprint::getService();
+    touch_fd_ = android::base::unique_fd(open(TOUCH_DEV_PATH, O_RDWR));
 
     std::thread([this]() {
         int fd = open(FOD_UI_PATH, O_RDONLY);
@@ -136,12 +134,16 @@ Return<void> FingerprintInscreen::onRelease() {
 }
 
 Return<void> FingerprintInscreen::onShowFODView() {
-    set(FOD_STATUS_PATH, FOD_STATUS_ON);
+    int arg[2] = {10,1};
+    ioctl(touch_fd_.get(), TOUCH_IOC_SETMODE, &arg);
+
     return Void();
 }
 
 Return<void> FingerprintInscreen::onHideFODView() {
-    set(FOD_STATUS_PATH, FOD_STATUS_OFF);
+    int arg[2] = {10,0};
+    ioctl(touch_fd_.get(), TOUCH_IOC_RESETMODE, &arg);
+
     return Void();
 }
 

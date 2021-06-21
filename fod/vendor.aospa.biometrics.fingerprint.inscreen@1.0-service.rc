@@ -1,9 +1,9 @@
 on boot
-    chown system system /sys/devices/platform/soc/soc:qcom,dsi-display/fod_ui
-    chown system system /sys/devices/virtual/touch/tp_dev/fod_status
+    chown system system /dev/xiaomi-touch
+    chmod 0660 /dev/xiaomi-touch
 
+    chown system system /sys/devices/platform/soc/soc:qcom,dsi-display/fod_ui
     chmod 0444 /sys/devices/platform/soc/soc:qcom,dsi-display/fod_ui
-    chmod 0644 /sys/devices/virtual/touch/tp_dev/fod_status
 
 service vendor.fingerprint-inscreen-1-0 /system_ext/bin/hw/vendor.aospa.biometrics.fingerprint.inscreen@1.0-service
     interface vendor.aospa.biometrics.fingerprint.inscreen@1.0::IFingerprintInscreen default
