@@ -8,6 +8,9 @@
 
 function blob_fixup() {
     case "${1}" in
+        lib/libcameraservice.so)
+            "${PATCHELF}" --add-needed "libmediaplayer_shim.so" "${2}"
+            ;;
     esac
 }
 

@@ -32,6 +32,9 @@ PRODUCT_PACKAGES += \
     vendor.xiaomi.hardware.motor@1.0.vendor \
     XiaomiPopupCamera
 
+PRODUCT_PACKAGES += \
+    libmediaplayer_shim \
+
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/rootdir/etc/vendor.xiaomi.hardware.motor@1.0-service.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/vendor.xiaomi.hardware.motor@1.0-service.rc
 
