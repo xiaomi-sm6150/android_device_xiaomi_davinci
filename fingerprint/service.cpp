@@ -29,12 +29,37 @@ using android::hardware::configureRpcThreadpool;
 using android::hardware::joinRpcThreadpool;
 using android::sp;
 
+using android::status_t;
+
+status_t BiometricsFingerprint::registerAsSystemService() {
+    status_t ret = 0;
+
+    ret = IBiometricsFingerprint::registerAsService();
+    if (ret != 0) {
+        ALOGE("Failed to register IBiometricsFingerprint (%d)", ret);
+        goto fail;
+    } else {
+        ALOGI("Successfully registered IBiometricsFingerprint");
+    }
+
+    ret = IXiaomiFingerprint::registerAsService();
+    if (ret != 0) {
+        ALOGE("Failed to register IXiaomiFingerprint (%d)", ret);
+        goto fail;
+    } else {
+        ALOGI("Successfully registered IXiaomiFingerprint");
+    }
+
+fail:
+    return ret;
+}
+
 int main() {
-    android::sp<IBiometricsFingerprint> bio = new BiometricsFingerprint();
+    android::sp<BiometricsFingerprint> bio = new BiometricsFingerprint();
 
     configureRpcThreadpool(1, true /*callerWillJoin*/);
 
-    if (::android::OK != bio->registerAsService()) {
+    if (::android::OK != bio->registerAsSystemService()) {
         return 1;
     }
 

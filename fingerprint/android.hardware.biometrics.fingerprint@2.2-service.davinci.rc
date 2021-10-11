@@ -1,0 +1,4 @@
+service vendor.fps_hal /vendor/bin/hw/android.hardware.biometrics.fingerprint@2.2-service.davinci
+    class hal
+    user nobody
+    group nobody

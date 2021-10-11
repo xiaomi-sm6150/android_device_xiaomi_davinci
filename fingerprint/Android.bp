@@ -1,17 +1,11 @@
-package {
-    // See: http://go/android-license-faq
-    // A large-scale-change added 'default_applicable_licenses' to import
-    // all of the 'license_kinds' from "hardware_interfaces_license"
-    // to get the below license kinds:
-    //   SPDX-license-identifier-Apache-2.0
-    default_applicable_licenses: ["hardware_interfaces_license"],
-}
-
 cc_binary {
-    name: "android.hardware.biometrics.fingerprint@2.2-service.example",
+    name: "android.hardware.biometrics.fingerprint@2.2-service.davinci",
     defaults: ["hidl_defaults"],
-    init_rc: ["android.hardware.biometrics.fingerprint@2.2-service.rc"],
-    vintf_fragments: ["android.hardware.biometrics.fingerprint@2.2-service.xml"],
+    init_rc: ["android.hardware.biometrics.fingerprint@2.2-service.davinci.rc"],
+    vintf_fragments: [
+        "android.hardware.biometrics.fingerprint@2.2-service.davinci.xml",
+        "vendor.xiaomi.hardware.fingerprintextension@1.0.xml",
+    ],
     vendor: true,
     relative_install_path: "hw",
     srcs: [
@@ -26,6 +20,7 @@ cc_binary {
         "libhardware",
         "libutils",
         "android.hardware.biometrics.fingerprint@2.2",
+        "vendor.xiaomi.hardware.fingerprintextension@1.0",
     ],
 
 }
