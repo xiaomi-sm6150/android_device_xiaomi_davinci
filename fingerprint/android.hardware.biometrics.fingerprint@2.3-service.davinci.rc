@@ -2,6 +2,10 @@ on init
     # Goodix fingerprint
     chown system system /dev/goodix_fp
 
+on boot
+    chown system system /sys/devices/platform/soc/soc:qcom,dsi-display/fod_ui
+    chmod 0444 /sys/devices/platform/soc/soc:qcom,dsi-display/fod_ui
+
 on post-fs-data
     mkdir /data/vendor/goodix 0770 system system
     mkdir /mnt/vendor/persist/goodix 0770 system system

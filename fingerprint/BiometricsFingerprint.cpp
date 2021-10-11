@@ -25,6 +25,30 @@
 #include <inttypes.h>
 #include <unistd.h>
 
+#include <android-base/logging.h>
+#include <fstream>
+#include <cmath>
+#include <thread>
+
+#include <fcntl.h>
+#include <poll.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+
+#define COMMAND_NIT 10
+#define PARAM_NIT_FOD 1
+#define PARAM_NIT_NONE 0
+
+#define FOD_STATUS_ON 1
+#define FOD_STATUS_OFF -1
+
+#define TOUCH_DEV_PATH "/dev/xiaomi-touch"
+#define Touch_Fod_Enable 10
+#define TOUCH_MAGIC 0x5400
+#define TOUCH_IOC_SETMODE TOUCH_MAGIC + 0
+
+#define FOD_UI_PATH "/sys/devices/platform/soc/soc:qcom,dsi-display/fod_ui"
+
 namespace android {
 namespace hardware {
 namespace biometrics {
@@ -45,6 +69,8 @@ BiometricsFingerprint::BiometricsFingerprint() : mClientCallback(nullptr), mDevi
     if (!mDevice) {
         ALOGE("Can't open HAL module");
     }
+
+    touch_fd_ = android::base::unique_fd(open(TOUCH_DEV_PATH, O_RDWR));
 }
 
 BiometricsFingerprint::~BiometricsFingerprint() {
@@ -409,6 +435,11 @@ Return<bool> BiometricsFingerprint::isUdfps(uint32_t /* sensorId */) {
  * touch area, in display pixels.
  */
 Return<void>  BiometricsFingerprint::onFingerDown(uint32_t /* x */, uint32_t /* y */, float /* minor */, float /* major */) {
+    int arg[2] = {Touch_Fod_Enable, FOD_STATUS_ON};
+    ioctl(touch_fd_.get(), TOUCH_IOC_SETMODE, &arg);
+
+    extCmd(COMMAND_NIT, PARAM_NIT_FOD);
+
     return Void();
 }
 /**
@@ -421,10 +452,15 @@ Return<void>  BiometricsFingerprint::onFingerDown(uint32_t /* x */, uint32_t /* 
  * previously caused a "finger down" event will be reported.
  */
 Return<void>  BiometricsFingerprint::onFingerUp() {
+    int arg[2] = {Touch_Fod_Enable, FOD_STATUS_OFF};
+    ioctl(touch_fd_.get(), TOUCH_IOC_SETMODE, &arg);
+
+    extCmd(COMMAND_NIT, PARAM_NIT_NONE);
+
     return Void();
 }
 
-Return<int32_t> BiometricsFingerprint::extCmd(int32_t cmd, int32_t param) {
+int32_t BiometricsFingerprint::extCmd(int32_t cmd, int32_t param) {
     return mDevice->extCmd(mDevice, cmd, param);
 }
 

@@ -24,7 +24,8 @@
 #include <hidl/MQDescriptor.h>
 #include <hidl/Status.h>
 #include <android/hardware/biometrics/fingerprint/2.3/IBiometricsFingerprint.h>
-#include <vendor/xiaomi/hardware/fingerprintextension/1.0/IXiaomiFingerprint.h>
+
+#include <android-base/unique_fd.h>
 
 #include "fingerprint.h"
 
@@ -44,17 +45,13 @@ using ::android::hardware::hidl_vec;
 using ::android::hardware::hidl_string;
 using ::android::sp;
 
-using ::vendor::xiaomi::hardware::fingerprintextension::V1_0::IXiaomiFingerprint;
-
 using FingerprintError = android::hardware::biometrics::fingerprint::V2_1::FingerprintError;
 using FingerprintAcquiredInfo = android::hardware::biometrics::fingerprint::V2_1::FingerprintAcquiredInfo;
 
-struct BiometricsFingerprint : public IBiometricsFingerprint, public IXiaomiFingerprint {
+struct BiometricsFingerprint : public IBiometricsFingerprint {
 public:
     BiometricsFingerprint();
     ~BiometricsFingerprint();
-
-    status_t registerAsSystemService();
 
     // Method to wrap legacy HAL with BiometricsFingerprint class
     static IBiometricsFingerprint* getInstance();
@@ -74,7 +71,6 @@ public:
     Return<void> onFingerDown(uint32_t x, uint32_t y, float minor, float major) override;
     Return<void> onFingerUp() override;
 
-    Return<int32_t> extCmd(int32_t cmd, int32_t param) override;
 
 private:
     static fingerprint_device_t* openHal();
@@ -84,9 +80,13 @@ private:
     static FingerprintAcquiredInfo VendorAcquiredFilter(int32_t error, int32_t* vendorCode);
     static BiometricsFingerprint* sInstance;
 
+    int32_t extCmd(int32_t cmd, int32_t param);
+
     std::mutex mClientCallbackMutex;
     sp<IBiometricsFingerprintClientCallback> mClientCallback;
     fingerprint_device_t *mDevice;
+
+    android::base::unique_fd touch_fd_;
 };
 
 }  // namespace implementation
