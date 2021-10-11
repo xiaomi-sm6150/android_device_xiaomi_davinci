@@ -1,4 +1,0 @@
-service vendor.fps_hal /vendor/bin/hw/android.hardware.biometrics.fingerprint@2.2-service.example
-    class hal
-    user nobody
-    group nobody
