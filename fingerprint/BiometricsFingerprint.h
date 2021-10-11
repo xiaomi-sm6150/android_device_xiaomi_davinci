@@ -20,12 +20,10 @@
 #include <log/log.h>
 #include <android/log.h>
 #include <hardware/hardware.h>
+#include <hardware/fingerprint.h>
 #include <hidl/MQDescriptor.h>
 #include <hidl/Status.h>
 #include <android/hardware/biometrics/fingerprint/2.2/IBiometricsFingerprint.h>
-
-#include <vendor/xiaomi/hardware/fingerprintextension/1.0/IXiaomiFingerprint.h>
-#include "fingerprint.h"
 
 namespace android {
 namespace hardware {
@@ -43,17 +41,10 @@ using ::android::hardware::hidl_vec;
 using ::android::hardware::hidl_string;
 using ::android::sp;
 
-using ::vendor::xiaomi::hardware::fingerprintextension::V1_0::IXiaomiFingerprint;
-
-using FingerprintAcquiredInfo = android::hardware::biometrics::fingerprint::V2_1::FingerprintAcquiredInfo;
-using FingerprintError = android::hardware::biometrics::fingerprint::V2_1::FingerprintError;
-
-struct BiometricsFingerprint : public IBiometricsFingerprint, public IXiaomiFingerprint {
+struct BiometricsFingerprint : public IBiometricsFingerprint {
 public:
     BiometricsFingerprint();
     ~BiometricsFingerprint();
-
-    status_t registerAsSystemService();
 
     // Methods from ::android::hardware::biometrics::fingerprint::V2_2::IBiometricsFingerprint follow.
     Return<uint64_t> setNotify(const sp<IBiometricsFingerprintClientCallback>& clientCallback) override;
@@ -66,19 +57,10 @@ public:
     Return<RequestStatus> remove(uint32_t gid, uint32_t fid) override;
     Return<RequestStatus> setActiveGroup(uint32_t gid, const hidl_string& storePath) override;
     Return<RequestStatus> authenticate(uint64_t operationId, uint32_t gid) override;
-    Return<int32_t> extCmd(int32_t cmd, int32_t param) override;
 
 private:
-    static fingerprint_device_t* openHal();
-    static void notify(const fingerprint_msg_t *msg); /* Static callback for legacy HAL implementation */
-    static Return<RequestStatus> ErrorFilter(int32_t error);
-    static FingerprintError VendorErrorFilter(int32_t error, int32_t* vendorCode);
-    static FingerprintAcquiredInfo VendorAcquiredFilter(int32_t error, int32_t* vendorCode);
-    static BiometricsFingerprint* sInstance;
-
-    std::mutex mClientCallbackMutex;
     sp<IBiometricsFingerprintClientCallback> mClientCallback;
-    fingerprint_device_t *mDevice;
+
 };
 
 }  // namespace implementation
