@@ -49,6 +49,29 @@
 
 #define FOD_UI_PATH "/sys/devices/platform/soc/soc:qcom,dsi-display/fod_ui"
 
+namespace {
+
+static bool readBool(int fd) {
+    char c;
+    int rc;
+
+    rc = lseek(fd, 0, SEEK_SET);
+    if (rc) {
+        LOG(ERROR) << "failed to seek fd, err: " << rc;
+        return false;
+    }
+
+    rc = read(fd, &c, sizeof(char));
+    if (rc != 1) {
+        LOG(ERROR) << "failed to read bool from fd, err: " << rc;
+        return false;
+    }
+
+    return c != '0';
+}
+
+} // anonymous namespace
+
 namespace android {
 namespace hardware {
 namespace biometrics {
@@ -71,6 +94,33 @@ BiometricsFingerprint::BiometricsFingerprint() : mClientCallback(nullptr), mDevi
     }
 
     touch_fd_ = android::base::unique_fd(open(TOUCH_DEV_PATH, O_RDWR));
+
+    std::thread([this]() {
+        int fd = open(FOD_UI_PATH, O_RDONLY);
+        if (fd < 0) {
+            LOG(ERROR) << "failed to open fd, err: " << fd;
+            return;
+        }
+
+        struct pollfd fodUiPoll = {
+            .fd = fd,
+            .events = POLLERR | POLLPRI,
+            .revents = 0,
+        };
+
+        while (true) {
+            int rc = poll(&fodUiPoll, 1, -1);
+            if (rc < 0) {
+                LOG(ERROR) << "failed to poll fd, err: " << rc;
+                continue;
+            }
+
+            bool fingerDown = readBool(fd);
+            LOG(INFO) << "Udfps: Sending extCmd: " << fingerDown;
+            extCmd(COMMAND_NIT, fingerDown ? PARAM_NIT_FOD : PARAM_NIT_NONE);
+
+        }
+    }).detach();
 }
 
 BiometricsFingerprint::~BiometricsFingerprint() {
@@ -438,7 +488,7 @@ Return<void>  BiometricsFingerprint::onFingerDown(uint32_t /* x */, uint32_t /* 
     int arg[2] = {Touch_Fod_Enable, FOD_STATUS_ON};
     ioctl(touch_fd_.get(), TOUCH_IOC_SETMODE, &arg);
 
-    extCmd(COMMAND_NIT, PARAM_NIT_FOD);
+    LOG(INFO) << "Udfps: Enabled fod_status";
 
     return Void();
 }
@@ -455,7 +505,7 @@ Return<void>  BiometricsFingerprint::onFingerUp() {
     int arg[2] = {Touch_Fod_Enable, FOD_STATUS_OFF};
     ioctl(touch_fd_.get(), TOUCH_IOC_SETMODE, &arg);
 
-    extCmd(COMMAND_NIT, PARAM_NIT_NONE);
+    LOG(INFO) << "Udfps: Disabled fod_status";
 
     return Void();
 }
