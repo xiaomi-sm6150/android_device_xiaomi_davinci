@@ -347,7 +347,7 @@ public class PopupCameraService extends Service implements Handler.Callback {
                                     ? R.string.popup_camera_calibrate_success
                                     : R.string.popup_camera_calibrate_failed);
             AlertDialog.Builder alertDialogBuilder =
-                    new AlertDialog.Builder(this, R.style.SystemAlertDialogTheme);
+                    new AlertDialog.Builder(this);
             alertDialogBuilder.setMessage(res.getString(dialogMessageResId));
             alertDialogBuilder.setPositiveButton(android.R.string.ok, null);
             AlertDialog alertDialog = alertDialogBuilder.create();
@@ -377,7 +377,7 @@ public class PopupCameraService extends Service implements Handler.Callback {
                     ? R.string.popup_camera_takeback_failed_calibrate
                     : R.string.popup_camera_popup_failed_calibrate;
             AlertDialog alertDialog =
-                    new AlertDialog.Builder(this, R.style.SystemAlertDialogTheme)
+                    new AlertDialog.Builder(this)
                             .setTitle(res.getString(R.string.popup_camera_tip))
                             .setMessage(res.getString(dialogMessageResId))
                             .setPositiveButton(res.getString(R.string.popup_camera_calibrate_now),
