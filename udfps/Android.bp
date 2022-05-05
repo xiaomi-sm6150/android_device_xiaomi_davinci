@@ -1,0 +1,19 @@
+//
+// Copyright (C) 2022 The LineageOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+cc_library_shared {
+    name: "libxiaomiudfps",
+    srcs: [
+        "xiaomiUdfps.cpp",
+    ],
+    vendor: true,
+    shared_libs: [
+        "libbase",
+        "libhidlbase",
+        "liblog",
+    ],
+    header_libs: ["xiaomifingerprint_headers"],
+}
