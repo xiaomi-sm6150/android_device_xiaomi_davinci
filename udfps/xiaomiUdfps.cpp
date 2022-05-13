@@ -10,6 +10,7 @@
 #include <log/log.h>
 #include <poll.h>
 #include <hidl/Status.h>
+#include <thread>
 
 #include "fingerprint.h"
 
@@ -49,21 +50,12 @@ static bool readBool(int fd) {
     return c != '0';
 }
 
+android::base::unique_fd fod_ui_fd_;
 android::base::unique_fd touch_fd_;
 
-void udfpsThread(fingerprint_device_t* device) {
-    ALOGI("udfpsThread");
-
-    touch_fd_ = android::base::unique_fd(open(TOUCH_DEV_PATH, O_RDWR));
-
-    int fd = open(FOD_UI_PATH, O_RDONLY);
-    if (fd < 0) {
-        ALOGE("failed to open fd, err: %d", fd);
-        return;
-    }
-
+void udfpsPollThread(fingerprint_device_t* device) {
     struct pollfd fodUiPoll = {
-            .fd = fd,
+            .fd = fod_ui_fd_.get(),
             .events = POLLERR | POLLPRI,
             .revents = 0,
     };
@@ -71,22 +63,40 @@ void udfpsThread(fingerprint_device_t* device) {
     while (true) {
         int rc = poll(&fodUiPoll, 1, -1);
         if (rc < 0) {
-            ALOGE("failed to poll fd, err: %d", rc);
+            ALOGE("%s: Failed to poll fd, err: %d", __func__, rc);
             continue;
         }
 
-        device->extCmd(device, COMMAND_NIT, readBool(fd) ? PARAM_NIT_FOD : PARAM_NIT_NONE);
+        bool status = readBool(fod_ui_fd_.get());
 
-        int arg[2] = {TOUCH_FOD_ENABLE, readBool(fd) ? FOD_STATUS_ON : FOD_STATUS_OFF};
+        device->extCmd(device, COMMAND_NIT, status ? PARAM_NIT_FOD : PARAM_NIT_NONE);
+
+        int arg[2] = {TOUCH_FOD_ENABLE, status ? FOD_STATUS_ON : FOD_STATUS_OFF};
         ioctl(touch_fd_.get(), TOUCH_IOC_SETMODE, &arg);
     }
 }
 
-Return<void> xiaomiOnFingerDown(fingerprint_device_t* /*device*/, uint32_t /*x*/, uint32_t /*y*/,
-                                float /*minor*/, float /*major*/) {
-    return Void();
+
+extern "C" void xiaomiUdfpsInit(fingerprint_device_t* device) {
+    fod_ui_fd_ = android::base::unique_fd(open(FOD_UI_PATH, O_RDONLY));
+    if (fod_ui_fd_.get() == -1) {
+        ALOGE("%s: Failed to open %s", __func__, FOD_UI_PATH);
+        return;
+    }
+
+    touch_fd_ = android::base::unique_fd(open(TOUCH_DEV_PATH, O_RDWR));
+    if (touch_fd_.get() == -1) {
+        ALOGE("%s: Failed to open %s", __func__, TOUCH_DEV_PATH);
+        return;
+    }
+
+    std::thread thread(udfpsPollThread, device);
+    thread.detach();
 }
 
-Return<void> xiaomiOnFingerUp(fingerprint_device_t* /*device*/) {
-    return Void();
+extern "C" void xiaomiOnFingerDown(fingerprint_device_t* /*device*/, uint32_t /*x*/, uint32_t /*y*/,
+                                float /*minor*/, float /*major*/) {
+}
+
+extern "C" void xiaomiOnFingerUp(fingerprint_device_t* /*device*/) {
 }
